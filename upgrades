@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import argparse
+
+try:
+  import Tkinter as tk
+except ImportError:
+  print "You need the Tkinter library for this. Issue the following command: sudo yum install tkinter"
+  sys.exit()
+
+root = tk.Tk()
+
+parser = argparse.ArgumentParser(description = 'Matrix Reloaded scene based yum upgrader')
+parser.add_argument('-k', '--no-kernel', help = 'Excludes kernel updates', action = 'store_true')
+args = parser.parse_args()
+
+# Check root access
+exit_code = os.system('sudo echo "It\'s him, the anomaly. Do we proceed? Yes, he\'s still... only human."')
+if exit_code is not 0:
+  print "Can't upgrade. Need root access."
+  sys.exit()
+
+# Check if updates are available first.
+exit_code = os.system('sudo yum check-update')
+if exit_code is not 100:
+  print "I have dreamed a dream, but now that dream has gone from me."
+  print "No upgrades."
+  sys.exit()
+
+# Image
+image_file = os.path.join(os.path.dirname(os.path.realpath(__file__)) + os.sep, "upgrades.gif")
+image = tk.PhotoImage(file=image_file)
+image_height = image.height()
+image_width = image.width()
+
+# show no frame
+root.overrideredirect(True)
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+target_y = (screen_height - image_height) / 2 if screen_height < 1500 else 300
+root.geometry('%dx%d+%d+%d' % (image_width, image_height, (screen_width - image_width) / 2, target_y))
+
+# Canvas
+canvas = tk.Canvas(root, height=image_height, width=image_width, bg="black")
+canvas.create_image(image_width/2, image_height/2, image=image)
+canvas.pack()
+
+# show the splash screen for 2000 milliseconds then destroy
+root.after(2000, root.destroy)
+root.mainloop()
+
+# your console program can start here ...
+update_string = 'yum -x "kernel*" update' if args.no_kernel else 'yum update'
+os.system('sudo %s' % update_string)
