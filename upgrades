@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+import subprocess
 
 try:
   import Tkinter as tk
@@ -23,7 +24,7 @@ if exit_code is not 0:
   sys.exit()
 
 # Check if updates are available first.
-exit_code = os.system('sudo yum check-update')
+exit_code = subprocess.call(["sudo", "yum", "check-update"])
 if exit_code is not 100:
   print "I have dreamed a dream, but now that dream has gone from me."
   print "No upgrades."
